@@ -1,36 +1,58 @@
-const Model = function() {
-  const todos = []
+const Model = function () {
+  let todos = [{
+    id: 1,
+    text: 'a'
+  }, {
+    id: 2,
+    text: 'bb'
+  }, {
+    id: 3,
+    text: 'ccc'
+  }]
+  let dynamics = {
+    currentId: null,
+    inputVal: undefined,
+    todoToEdit: undefined,
+  }
   const observers = []
   const addTodo = function (todo) {
-    let idx = todos.length
+    let idx = todos.length + 1
     let todoObj = {
-      id: idx ++,
+      id: idx++,
       text: todo
     }
-    if(todo !== undefined) {
+    if (todo !== undefined) {
       todos.push(todoObj)
       this.notifyObserver()
     }
   }
-  const deleteTodo = function (todo) {
-    const id = todos.indexOf(todo)
-    todos.splice(id, 1)
+  const deleteTodo = function (idx) {
+    let numberIdx = Number(idx)
+    let trueIdx = null
+    todos.forEach((todo, idx) => {
+      if (todo.id === numberIdx) {
+        trueIdx = idx
+      }
+    })
+    todos.splice(trueIdx, 1)
     this.notifyObserver()
   }
   const addObserver = function (observer) {
     observers.push(observer)
   }
   const notifyObserver = function () {
-    observers.forEach( o => {
+    observers.forEach(o => {
       o.update(this)
     })
   }
   return {
     todos,
+    dynamics,
     addTodo,
     addObserver,
     notifyObserver,
-    deleteTodo
+    deleteTodo,
+    observers
   }
 }
 

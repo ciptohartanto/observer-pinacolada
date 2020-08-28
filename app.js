@@ -4,7 +4,8 @@ import Controller from './js/Controller.js'
 
 const model = new Model()
 const observerUI = new ObserverUI()
-const controller = new Controller()
+const controller = new Controller(model, observerUI)
 
-controller.watch(model)
 model.addObserver(observerUI)
+
+controller.init()
