@@ -1,13 +1,10 @@
 const Controller = function (model, ui) {
-  let inputVal = undefined
-  let currentId = null
   const todoBody = document.getElementById('dTodo')
+
   const _listenItemBackground = function (callback) {
     todoBody.addEventListener('click', (e) => {
-      if (e.target.attributes["data-item"]) {
-        // callback(e)
-        console.log(e)
-        e.target.innerHTML = `<input type="text" value=${model.dynamics.todoToEdit} />`
+      if (e.target.className === 'todo-item') {
+        callback(e)
       }
     })
   }
@@ -25,51 +22,70 @@ const Controller = function (model, ui) {
       }
     })
   }
-  const _addNewTodo = function () {
-    model.addTodo(inputVal)
+  const _listenEditButton = function (callback) {
+    todoBody.addEventListener('click', (e) => {
+      if (e.target.attributes["data-editButton"]) {
+        callback(e)
+      }
+    })
   }
-  const _deleteATodo = function (id) {
-    model.deleteTodo(id)
-  }
-  const _updateTodoToEdit = function (val) {
-    model.dynamics.todoToEdit = val
-  }
-  const _setCurrentId = function (e) {
-    currentId = e.target.attributes["data-id"].value
+  const _getCurrentId = function (e) {
+    let id = null || e.target.parentNode.dataset.id
+    return id
   }
   const _getInputValue = function () {
     const input = document.getElementById('dInput')
+    let text = undefined
     if (input.value.length !== 0) {
       input.setAttribute('placeholder', 'Write Your Todo')
-      inputVal = input.value
-      // console.log(input.value.length)
+      text = input.value
     } else {
       input.setAttribute('placeholder', 'Can\'t be empty, yo!')
-      inputVal = undefined
     }
     input.value = ''
+    return text
+  }
+  const _getNewTodo = function (e) {
+    return e.target.parentNode.firstChild.value
+  }
+  const _getExistingText = function(e) {
+    return e.target.attributes['data-todo'].value
+  }
+  const _setNewInputMarkup = function (e) {
+    e.target.innerHTML = _dlgt_transformToInput(_getExistingText(e))
+  }
+  const _xtnd__addTodo = function () {
+    model.addTodo(_getInputValue())
+  }
+  const _extnd__deleteTodo = function (e) {
+    model.deleteTodo(_getCurrentId(e))
+  }
+  const _extnd__editTodo = function (e, text) {
+    model.editTodo(_getCurrentId(e), text) //- @params { id, text}
+  }
+  const _dlgt_transformToInput = function (text, id) {
+    return ui.transformToInput(text, id)
   }
   const __eventsOnAddButton = function () {
-    _getInputValue()
-    _addNewTodo()
-
+    _xtnd__addTodo()
   }
   const __eventsOnDelete = function (e) {
-    _setCurrentId(e)
-    _deleteATodo(currentId)
+    _extnd__deleteTodo(e)
   }
   const __eventsOnEditing = function (e) {
-    _updateTodoToEdit(e.target.attributes['data-todo'].value)
-    console.log(model)
+    _extnd__editTodo(e, _getNewTodo(e))
+  }
+  const __eventsOnTransformingToInput = function (e) {
+
+    _setNewInputMarkup(e)
   }
   const init = () => {
     _listenAddButton(__eventsOnAddButton)
     _listenDeleteButton(__eventsOnDelete)
-    _listenItemBackground()
-
+    _listenItemBackground(__eventsOnTransformingToInput) // -when transforming text to input
+    _listenEditButton(__eventsOnEditing)
   }
   return {
-    model,
     init
   }
 }

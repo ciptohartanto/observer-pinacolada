@@ -1,19 +1,5 @@
 const Model = function () {
-  let todos = [{
-    id: 1,
-    text: 'a'
-  }, {
-    id: 2,
-    text: 'bb'
-  }, {
-    id: 3,
-    text: 'ccc'
-  }]
-  let dynamics = {
-    currentId: null,
-    inputVal: undefined,
-    todoToEdit: undefined,
-  }
+  let todos = []
   const observers = []
   const addTodo = function (todo) {
     let idx = todos.length + 1
@@ -26,16 +12,23 @@ const Model = function () {
       this.notifyObserver()
     }
   }
-  const deleteTodo = function (idx) {
-    let numberIdx = Number(idx)
+  const deleteTodo = function (id) {
+    todos.splice(getTrueId(id), 1)
+    this.notifyObserver()
+  }
+  const editTodo = function (id, text) {
+    todos[getTrueId(id)].text = text
+    this.notifyObserver()
+  }
+  const getTrueId = function (id) {
+    let numberIdx = Number(id)
     let trueIdx = null
     todos.forEach((todo, idx) => {
       if (todo.id === numberIdx) {
         trueIdx = idx
       }
     })
-    todos.splice(trueIdx, 1)
-    this.notifyObserver()
+    return trueIdx
   }
   const addObserver = function (observer) {
     observers.push(observer)
@@ -47,12 +40,11 @@ const Model = function () {
   }
   return {
     todos,
-    dynamics,
     addTodo,
+    editTodo,
     addObserver,
     notifyObserver,
-    deleteTodo,
-    observers
+    deleteTodo
   }
 }
 
