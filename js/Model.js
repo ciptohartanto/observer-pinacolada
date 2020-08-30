@@ -16,9 +16,11 @@ const Model = function () {
     todos.splice(getTrueId(id), 1)
     this.notifyObserver()
   }
-  const editTodo = function (id, text) {
-    todos[getTrueId(id)].text = text
-    this.notifyObserver()
+  const editTodo = function (id, todo) {
+    if( todo !== undefined) {
+      todos[getTrueId(id)].text = todo
+      this.notifyObserver()
+    }
   }
   const getTrueId = function (id) {
     let numberIdx = Number(id)

@@ -1,4 +1,7 @@
 const Controller = function (model, ui) {
+
+  // ---------------------------------------------
+  // -- event listeners
   const todoBody = document.getElementById('dTodo')
 
   const _listenItemBackground = function (callback) {
@@ -29,12 +32,18 @@ const Controller = function (model, ui) {
       }
     })
   }
+
+  // ---------------------------------------------
+  // -- reusable fn's
   const _getCurrentId = function (e) {
     let id = null || e.target.parentNode.dataset.id
     return id
   }
-  const _getInputValue = function () {
-    const input = document.getElementById('dInput')
+  const _getExistingText = function(e) {
+    return e.target.attributes['data-todo'].value
+  }
+  const _validatingInputValue = function(e) {
+    let input = e.target.previousElementSibling
     let text = undefined
     if (input.value.length !== 0) {
       input.setAttribute('placeholder', 'Write Your Todo')
@@ -45,40 +54,43 @@ const Controller = function (model, ui) {
     input.value = ''
     return text
   }
-  const _getNewTodo = function (e) {
-    return e.target.parentNode.firstChild.value
+
+  // ---------------------------------------------
+  // -- extending and delegating fn's
+  const _xtnd__addTodo = function (e) {
+    const todo = _validatingInputValue(e)
+    model.addTodo(todo)
   }
-  const _getExistingText = function(e) {
-    return e.target.attributes['data-todo'].value
+  const _xtnd__deleteTodo = function (e) {
+    const id = _getCurrentId(e)
+    model.deleteTodo(id)
   }
-  const _setNewInputMarkup = function (e) {
-    e.target.innerHTML = _dlgt_transformToInput(_getExistingText(e))
+  const _xtnd__editTodo = function (e, text) {
+    const id = _getCurrentId(e)
+    model.editTodo(id, text) //- @params { id, text}
   }
-  const _xtnd__addTodo = function () {
-    model.addTodo(_getInputValue())
+  const _dlgt_transformToInput = function (extVal) {
+    return ui.transformToInput(extVal)
   }
-  const _extnd__deleteTodo = function (e) {
-    model.deleteTodo(_getCurrentId(e))
-  }
-  const _extnd__editTodo = function (e, text) {
-    model.editTodo(_getCurrentId(e), text) //- @params { id, text}
-  }
-  const _dlgt_transformToInput = function (text, id) {
-    return ui.transformToInput(text, id)
-  }
-  const __eventsOnAddButton = function () {
-    _xtnd__addTodo()
+
+  // ---------------------------------------------
+  // -- callbacks on events
+  const __eventsOnAddButton = function (e) {
+    _xtnd__addTodo(e)
   }
   const __eventsOnDelete = function (e) {
-    _extnd__deleteTodo(e)
+    _xtnd__deleteTodo(e)
   }
   const __eventsOnEditing = function (e) {
-    _extnd__editTodo(e, _getNewTodo(e))
+    const todo = _validatingInputValue(e)
+    _xtnd__editTodo(e, todo)
   }
   const __eventsOnTransformingToInput = function (e) {
-
-    _setNewInputMarkup(e)
+    e.target.innerHTML = _dlgt_transformToInput(_getExistingText(e))
   }
+
+  // ---------------------------------------------
+  // -- init
   const init = () => {
     _listenAddButton(__eventsOnAddButton)
     _listenDeleteButton(__eventsOnDelete)
